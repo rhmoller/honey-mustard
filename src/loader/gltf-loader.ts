@@ -29,10 +29,10 @@ export function loadFirstMesh(gltf: string): MeshData {
 
   const mesh: Partial<MeshData> = {};
 
-  const meshInfo = json.meshes[0].primitives[0];
+  const textureInfo = json.meshes[0].primitives[0];
 
-  if (typeof meshInfo.indices !== "undefined") {
-    const indexAccessor = json.accessors[meshInfo.indices];
+  if (typeof textureInfo.indices !== "undefined") {
+    const indexAccessor = json.accessors[textureInfo.indices];
     const viewIdx = indexAccessor.bufferView;
     const view = json.bufferViews[viewIdx];
     mesh.indexBuffer = new Uint16Array(buffers[0], view.byteOffset, view.byteLength / 2);
@@ -41,7 +41,7 @@ export function loadFirstMesh(gltf: string): MeshData {
 
   mesh.attributes = [];
 
-  Object.entries(meshInfo.attributes).forEach(entry => {
+  Object.entries(textureInfo.attributes).forEach(entry => {
     const key = entry[0];
     const value = entry[1] as number;
     const accessor = json.accessors[value];
