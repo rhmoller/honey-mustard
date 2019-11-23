@@ -3,6 +3,7 @@ import vertexShaderSrc from "./shaders/textured.vert.glsl";
 import fragmentShaderSrc from "./shaders/textured.frag.glsl";
 import { mat4 } from "gl-matrix";
 import { loadFirstMesh } from "./loader/gltf-loader";
+import { createGroundPlane } from "./model/meshFactory";
 
 const canvas = createCanvas();
 document.body.appendChild(canvas);
@@ -10,7 +11,8 @@ document.body.appendChild(canvas);
 fetch("/assets/Duck.gltf")
   .then(res => res.text())
   .then(gltf => {
-    const mesh = loadFirstMesh(gltf);
+    // const mesh = loadFirstMesh(gltf);
+    const mesh = createGroundPlane();
 
     const gl = initWebGL(canvas);
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSrc)!;
@@ -32,23 +34,19 @@ fetch("/assets/Duck.gltf")
     mat4.mul(matrix, proj, view);
 
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
-    const renderer = gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer!, gl.STATIC_DRAW);
 
-    const positionBufferData = mesh.attributes.find(
-      (attribute: { name: string }) => attribute.name == "POSITION"
-    )!;
+    const positionBufferData = mesh.attributes.find(attribute => attribute.name == "POSITION")!;
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer!);
     gl.bufferData(gl.ARRAY_BUFFER, positionBufferData.buffer, gl.STATIC_DRAW);
 
-    const texCoordBufferData = mesh.attributes.find(
-      (attribute: { name: string }) => attribute.name == "TEXCOORD_0"
-    )!;
+    const texCoordBufferData = mesh.attributes.find(attribute => attribute.name == "TEXCOORD_0")!;
 
     const texCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
@@ -74,7 +72,6 @@ fetch("/assets/Duck.gltf")
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         gl.generateMipmap(gl.TEXTURE_2D);
-        console.log("loaded texture");
       });
       image.src = mesh.textures![0];
     } else {
@@ -84,10 +81,9 @@ fetch("/assets/Duck.gltf")
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         gl.generateMipmap(gl.TEXTURE_2D);
-        console.log("loaded texture");
       });
       image.addEventListener("error", e => {
-        console.log("failed to load", e);
+        console.error("failed to load", e);
       });
 
       const bytes = mesh.textures![0] as Uint8Array;

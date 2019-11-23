@@ -1,4 +1,5 @@
 import { toByteArray } from "base64-js";
+import { MeshData } from "../model/MeshData";
 
 const GLTF_ARRAY_BUFFER = 34962;
 const GLTF_ELEMENT_ARRAY_BUFFER = 34963;
@@ -6,21 +7,6 @@ const GLTF_ELEMENT_ARRAY_BUFFER = 34963;
 export enum ComponentType {
   GLTF_FLOAT = 5126,
   GLTF_UNSIGNED_SHORT = 5123
-}
-
-export interface Attribute {
-  name: string;
-  buffer: ArrayBufferLike;
-  byteOffset: number;
-  stride: number;
-}
-
-export interface Mesh {
-  name?: string;
-  indexBuffer?: Uint16Array;
-  attributes: Attribute[];
-  textures?: (string | Uint8Array)[];
-  size: number;
 }
 
 function createViewBuffer(buffer: ArrayBufferLike, view: any, componentType: ComponentType) {
@@ -32,7 +18,7 @@ function createViewBuffer(buffer: ArrayBufferLike, view: any, componentType: Com
   }
 }
 
-export function loadFirstMesh(gltf: string): Mesh {
+export function loadFirstMesh(gltf: string): MeshData {
   const json = JSON.parse(gltf);
   const buffers = json.buffers
     .filter((buffer: any) => buffer.uri.startsWith("data:"))
@@ -41,12 +27,12 @@ export function loadFirstMesh(gltf: string): Mesh {
       return toByteArray(bufferBase64).buffer;
     });
 
-  const mesh: Partial<Mesh> = {};
+  const mesh: Partial<MeshData> = {};
 
   const meshInfo = json.meshes[0].primitives[0];
 
   if (typeof meshInfo.indices !== "undefined") {
-    let indexAccessor = json.accessors[meshInfo.indices];
+    const indexAccessor = json.accessors[meshInfo.indices];
     const viewIdx = indexAccessor.bufferView;
     const view = json.bufferViews[viewIdx];
     mesh.indexBuffer = new Uint16Array(buffers[0], view.byteOffset, view.byteLength / 2);
@@ -80,12 +66,9 @@ export function loadFirstMesh(gltf: string): Mesh {
       } else {
         const view = json.bufferViews[info.bufferView];
         const buffer = buffers[view.buffer];
-        console.log("texture view", view);
         return new Uint8Array(buffer, view.byteOffset, view.byteLength);
       }
     });
   }
-  console.log("textures are", mesh.textures);
-
-  return mesh as Mesh;
+  return mesh as MeshData;
 }

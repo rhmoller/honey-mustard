@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["./src","./webpack.config.js"]
+  "include": ["./src","./webpack.config.js", "jest.config.js"]
 }
