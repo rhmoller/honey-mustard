@@ -4,7 +4,8 @@ export function createGroundPlane(size = 512) {
   const indices = [0, 1, 2, 3, 4, 5];
   const sz = size / 2;
   const positions = [-sz, 0, -sz, +sz, 0, -sz, +sz, 0, +sz, +sz, 0, +sz, -sz, 0, +sz, -sz, 0, -sz];
-  const texCoords = [0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0];
+  const tsz = size / 512;
+  const texCoords = [0, 0, tsz, 0, tsz, tsz, tsz, tsz, 0, tsz, 0, 0];
 
   const mesh: MeshData = {
     name: "Ground",
