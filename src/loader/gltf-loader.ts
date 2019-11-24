@@ -1,29 +1,44 @@
 import { toByteArray } from "base64-js";
 import { MeshData } from "../model/MeshData";
 
-const GLTF_ARRAY_BUFFER = 34962;
-const GLTF_ELEMENT_ARRAY_BUFFER = 34963;
+interface Buffer {
+  uri?: string;
+  byteLength: number;
+  name?: string;
+}
+
+interface BufferView {
+  buffer: number;
+  byteLength: number;
+  byteOffset?: number;
+  byteStride?: number;
+}
+
+interface Image {
+  uri?: string;
+  bufferView?: number;
+}
 
 export enum ComponentType {
   GLTF_FLOAT = 5126,
   GLTF_UNSIGNED_SHORT = 5123
 }
 
-function createViewBuffer(buffer: ArrayBufferLike, view: any, componentType: ComponentType) {
+function createViewBuffer(buffer: ArrayBufferLike, view: BufferView, componentType: ComponentType) {
   switch (componentType) {
     case ComponentType.GLTF_UNSIGNED_SHORT:
-      return new Uint16Array(buffer, view.byteOffset, view.byteLength / 2);
+      return new Uint16Array(buffer, view.byteOffset || 0, view.byteLength / 2);
     case ComponentType.GLTF_FLOAT:
-      return new Float32Array(buffer, view.byteOffset, view.byteLength / 4);
+      return new Float32Array(buffer, view.byteOffset || 0, view.byteLength / 4);
   }
 }
 
 export function loadFirstMesh(gltf: string): MeshData {
   const json = JSON.parse(gltf);
-  const buffers = json.buffers
-    .filter((buffer: any) => buffer.uri.startsWith("data:"))
-    .map((buffer: any) => {
-      const bufferBase64 = buffer.uri.substring(37);
+  const buffers = (json.buffers as Buffer[])
+    .filter(buffer => buffer.uri!.startsWith("data:"))
+    .map(buffer => {
+      const bufferBase64 = buffer.uri!.substring(37);
       return toByteArray(bufferBase64).buffer;
     });
 
@@ -60,11 +75,11 @@ export function loadFirstMesh(gltf: string): MeshData {
 
   mesh.textures = [];
   if (json.images) {
-    mesh.textures = json.images.map((info: any) => {
+    mesh.textures = (json.images as Image[]).map(info => {
       if (info.uri) {
         return info.uri;
       } else {
-        const view = json.bufferViews[info.bufferView];
+        const view = json.bufferViews[info.bufferView!];
         const buffer = buffers[view.buffer];
         return new Uint8Array(buffer, view.byteOffset, view.byteLength);
       }

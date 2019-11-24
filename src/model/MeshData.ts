@@ -1,4 +1,3 @@
-
 export interface AttributeData {
   name: string;
   buffer: ArrayBufferLike;

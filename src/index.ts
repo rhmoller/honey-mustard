@@ -1,7 +1,7 @@
 import { createCanvas, createProgram, createShader, initWebGL } from "./canvasUtil";
 import vertexShaderSrc from "./shaders/textured.vert.glsl";
 import fragmentShaderSrc from "./shaders/textured.frag.glsl";
-import { mat4, vec3 } from "gl-matrix";
+import { mat4 } from "gl-matrix";
 import { loadFirstMesh } from "./loader/gltf-loader";
 import { createGroundPlane } from "./model/meshFactory";
 import { createMesh } from "./model/Mesh";

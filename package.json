@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "tsc --noEmit && eslint './src/**/*.ts' --quiet --fix",
+    "lint": "tsc --noEmit && eslint src",
     "start": "webpack-dev-server",
     "dev": "webpack --mode development",
     "test": "jest"
