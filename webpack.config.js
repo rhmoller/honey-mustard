@@ -29,5 +29,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "index.html"
     })
-  ]
+  ],
+  devServer: {
+    disableHostCheck: true,
+    host: "0.0.0.0"
+  }
 };

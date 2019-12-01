@@ -1,3 +1,5 @@
+import { mat4 } from "gl-matrix";
+
 export function createCanvas(width = 512, height = 512) {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -10,6 +12,13 @@ export function initWebGL(canvas: HTMLCanvasElement) {
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.enable(gl.DEPTH_TEST);
   return gl;
+}
+
+export function handleViewportChange(gl: WebGLRenderingContext, proj: mat4) {
+  gl.canvas.width = window.innerWidth;
+  gl.canvas.height = window.innerHeight;
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  mat4.perspective(proj, Math.PI / 2, gl.canvas.width / gl.canvas.height, 1, 10000);
 }
 
 export function createShader(gl: WebGLRenderingContext, type: GLenum, src: string) {

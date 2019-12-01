@@ -1,4 +1,4 @@
-import { createCanvas, createProgram, createShader, initWebGL } from "./canvasUtil";
+import { createCanvas, createProgram, createShader, handleViewportChange, initWebGL } from "./canvasUtil";
 import vertexShaderSrc from "./shaders/textured.vert.glsl";
 import fragmentShaderSrc from "./shaders/textured.frag.glsl";
 import { mat4 } from "gl-matrix";
@@ -8,7 +8,7 @@ import { createMesh } from "./model/Mesh";
 import { renderMesh } from "./engine/renderer";
 import { vadd } from "./math/vector";
 
-const canvas = createCanvas();
+const canvas = createCanvas(window.innerWidth, window.innerHeight);
 document.body.appendChild(canvas);
 
 interface GamePad {
@@ -44,7 +44,7 @@ fetch("/assets/Duck.gltf")
     gl.useProgram(program);
 
     const proj = mat4.create();
-    mat4.perspective(proj, Math.PI / 2, 1, 1, 10000);
+    handleViewportChange(gl, proj);
 
     const view = mat4.create();
     const camera = {
@@ -73,6 +73,9 @@ fetch("/assets/Duck.gltf")
         case "ArrowDown":
           gamePad.down = true;
           break;
+        case "F":
+        case "f":
+          canvas.requestFullscreen();
       }
     });
 
@@ -91,6 +94,20 @@ fetch("/assets/Duck.gltf")
           gamePad.down = false;
           break;
       }
+    });
+
+    window.addEventListener("touchstart", () => {
+      if (document.fullscreenElement === null) {
+        canvas.requestFullscreen();
+      }
+    });
+
+    window.addEventListener("resize", eResize => {
+      handleViewportChange(gl, proj);
+    });
+
+    window.addEventListener("orientationchange", eResize => {
+      handleViewportChange(gl, proj);
     });
 
     function render() {
